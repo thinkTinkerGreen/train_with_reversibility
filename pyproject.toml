@@ -57,10 +57,12 @@ packages = ["src/revllm"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
+exclude = ["notebooks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "C4"]
-ignore = ["E501"]
+ignore = ["E501", "B905"]
+
 
 [tool.mypy]
 python_version = "3.11"
@@ -74,8 +76,9 @@ module = ["revllm.reversible", "revllm.train"]
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["torch.*", "tokenizers.*", "huggingface_hub.*", "tqdm.*"]
+module = ["torch.*", "tokenizers.*", "huggingface_hub.*", "tqdm.*", "yaml.*", "numpy.*"]
 ignore_missing_imports = true
+
 
 [tool.pytest.ini_options]
 minversion = "8.0"
