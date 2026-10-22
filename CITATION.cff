@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "thinktinkergreen"
+    given-names: "techamit"
+title: "rain_with_reversibility: Reversible 20M-Parameter LLM on Google Colab"
+version: 1.0.0
+date-released: 2026-10-22
+url: "https://github.com/thinkTinkerGreen/rain_with_reversibility"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "thinktinkergreen"
+      given-names: "techamit"
+  title: "Reversible 20M LLM Pre-training on Google Colab: Memory and Throughput Analysis"
+  year: 2026

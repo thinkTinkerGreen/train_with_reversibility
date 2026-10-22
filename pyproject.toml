@@ -1,0 +1,84 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "revllm"
+version = "0.1.0"
+description = "Reversible 20M-Parameter LLM for efficient training on resource-constrained GPUs"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "thinktinkergreen", email = "techamit109@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch>=2.4.0",
+    "numpy>=1.26.0",
+    "pyyaml>=6.0.1",
+    "tokenizers>=0.19.0",
+    "huggingface-hub>=0.23.0",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-cov>=5.0.0",
+    "hypothesis>=6.104.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+    "types-PyYAML>=6.0.12.20240314",
+    "nbmake>=1.5.0",
+    "nbformat>=5.9.0",
+    "build>=1.2.1",
+    "twine>=5.1.0",
+]
+colab = [
+    "numpy>=1.26.0",
+    "pyyaml>=6.0.1",
+    "tokenizers>=0.19.0",
+    "huggingface-hub>=0.23.0",
+    "tqdm>=4.66.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/revllm"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["revllm.reversible", "revllm.train"]
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["torch.*", "tokenizers.*", "huggingface_hub.*", "tqdm.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --cov=src/revllm --cov-report=term-missing"
+testpaths = ["tests"]
+pythonpath = ["src"]

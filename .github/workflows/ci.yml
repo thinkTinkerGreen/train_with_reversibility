@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.11
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Ruff Check
+        run: uv run ruff check .
+      - name: Ruff Format Check
+        run: uv run ruff format --check .
+      - name: Mypy Check
+        run: uv run mypy src/
+
+  test:
+    name: Test (Py ${{ matrix.python-version }})
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install ${{ matrix.python-version }}
+      - name: Install dependencies (CPU PyTorch)
+        run: |
+          uv sync --extra dev
+          uv pip install --upgrade torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run Pytest with Coverage
+        run: uv run pytest --cov=src/revllm --cov-report=xml --cov-fail-under=85
+
+  notebooks-smoke:
+    name: Notebooks Smoke Test
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.11
+      - name: Install dependencies
+        run: |
+          uv sync --extra dev
+          uv pip install --upgrade torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run Notebooks Smoke Test
+        env:
+          REVLLM_SMOKE: "1"
+        run: uv run pytest --nbmake notebooks/
+
+  security:
+    name: Security & Secrets Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Pip Audit
+        run: |
+          uv python install 3.11
+          uv sync --extra dev
+          uv run pip-audit || true
+
+  build:
+    name: Package Build Check
+    needs: [test, notebooks-smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Build Wheel and SDist
+        run: |
+          uv python install 3.11
+          uv sync --extra dev
+          uv run python -m build
+          uv run twine check dist/*

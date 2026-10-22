@@ -1,0 +1,18 @@
+dataset:
+  name: "HuggingFaceFW/fineweb-edu"
+  config: "sample-10BT"
+  revision: "main"
+  text_field: "text"
+
+tokenizer:
+  type: "bpe"
+  vocab_size: 8192
+  special_tokens:
+    - "<|endoftext|>"
+  min_frequency: 2
+  train_docs: 100000
+
+splits:
+  train_tokens: 50100000
+  val_tokens: 2097152
+  context_len: 1024

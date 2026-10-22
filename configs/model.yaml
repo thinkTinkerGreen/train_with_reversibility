@@ -1,0 +1,13 @@
+layers: 10
+hidden_size: 384
+num_heads: 6
+head_dim: 64
+mlp_hidden_size: 1024
+norm_eps: 1e-6
+rope_base: 10000.0
+qk_norm: true
+context_len: 1024
+vocab_size: 8192
+tie_embeddings: true
+dropout: 0.0
+residual_dtype: "float32"

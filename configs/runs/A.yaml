@@ -1,0 +1,5 @@
+run_id: "baseline_fixed"
+arch: "baseline"
+h: null
+batch_size: 32
+seed: 1337
