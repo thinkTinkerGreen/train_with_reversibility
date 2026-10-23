@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import torch
@@ -52,13 +53,17 @@ def generate_greedy(
     return tokenizer.decode(generated_ids)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Generate text completions")
     parser.add_argument("--ckpt", required=True, help="Path to checkpoint .pt")
     parser.add_argument("--tokenizer", default="data/tokenizer.json", help="Path to tokenizer.json")
     parser.add_argument("--arch", required=True, help="Model architecture")
     parser.add_argument("--output", default="results/generations.json", help="Output JSON path")
-    args = parser.parse_args()
+
+    if argv is None:
+        if "ipykernel" in sys.modules or "google.colab" in sys.modules:
+            argv = []
+    args, _ = parser.parse_known_args(argv)
 
     device = get_device()
     model_cfg = ModelConfig()

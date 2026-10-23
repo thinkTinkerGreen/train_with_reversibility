@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -40,7 +41,7 @@ def train_bpe_tokenizer(
     return tokenizer
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Prepare dataset and tokenizer")
     parser.add_argument("--config", default="configs/data.yaml", help="Path to data config")
     parser.add_argument("--output-dir", default="data", help="Output directory")
@@ -50,7 +51,11 @@ def main() -> None:
     parser.add_argument(
         "--smoke", action="store_true", help="Generate tiny synthetic data for testing"
     )
-    args = parser.parse_args()
+
+    if argv is None:
+        if "ipykernel" in sys.modules or "google.colab" in sys.modules:
+            argv = []
+    args, _ = parser.parse_known_args(argv)
 
     smoke = args.smoke or (os.environ.get("REVLLM_SMOKE", "0") == "1")
     output_dir = Path(args.output_dir)
