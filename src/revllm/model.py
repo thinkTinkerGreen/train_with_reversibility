@@ -106,7 +106,9 @@ class TransformerLM(nn.Module):
                 p = p + f_out
             final_hidden = p
         elif self.arch in ["midpoint", "midpoint_theta", "leapfrog"]:
-            all_params = [p for p in self.parameters() if p.requires_grad]
+            block_params = [
+                p for block in self.blocks for p in block.parameters() if p.requires_grad
+            ]
             final_hidden = ReversibleFunction.apply(
                 x0,
                 freqs_cis,
@@ -116,8 +118,9 @@ class TransformerLM(nn.Module):
                 autocast_enabled,
                 autocast_dtype,
                 self.blocks,
-                *all_params,
+                *block_params,
             )
+
         elif self.arch == "hamiltonian":
             p = x0
             q = x0.clone()

@@ -103,6 +103,9 @@ class ReversibleFunction(torch.autograd.Function):
         grad_curr = grad_output.to(torch.float32)
         grad_prev = torch.zeros_like(grad_curr)
 
+        # Dictionary to store accumulated parameter gradients per parameter ID
+        param_grad_map: dict[int, torch.Tensor] = {}
+
         # Iterate backward through layers L-1 down to 0
         for l_idx in range(num_layers - 1, -1, -1):
             block = blocks[l_idx]
@@ -158,12 +161,13 @@ class ReversibleFunction(torch.autograd.Function):
 
             grad_p_l_from_f = grads[0]
             param_grads = grads[1:]
-            for p, g in zip(params, param_grads):
+            for p, g in zip(params, param_grads, strict=False):
                 if g is not None:
-                    if p.grad is None:
-                        p.grad = g.detach().clone()
+                    pid = id(p)
+                    if pid not in param_grad_map:
+                        param_grad_map[pid] = g
                     else:
-                        p.grad.add_(g.detach())
+                        param_grad_map[pid] = param_grad_map[pid] + g
 
             # Update state gradients for the next iteration (layer l-1)
             grad_curr = grad_p_l_direct + (grad_p_l_from_f if grad_p_l_from_f is not None else 0.0)
@@ -177,11 +181,12 @@ class ReversibleFunction(torch.autograd.Function):
         grad_x0 = grad_curr + grad_prev
 
         # Match outputs to forward arguments
-        # x0, freqs_cis, arch, h, thetas, autocast_enabled, autocast_dtype, blocks, *all_params
+        # x0, freqs_cis, arch, h, thetas, autocast_enabled, autocast_dtype, blocks, *block_params
         param_grads_list: list[torch.Tensor | None] = []
         for block in blocks:
             for p in block.parameters():
-                param_grads_list.append(p.grad if p.requires_grad else None)
+                if p.requires_grad:
+                    param_grads_list.append(param_grad_map.get(id(p), None))
 
         return (
             grad_x0,
