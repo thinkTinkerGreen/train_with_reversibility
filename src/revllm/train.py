@@ -140,7 +140,11 @@ def train_run(
     # Calculate step budgets
     batch_size = 2 if smoke_mode else run_cfg.batch_size
     tokens_per_step = batch_size * model_cfg.context_len
-    target_tokens = 5000 if smoke_mode else train_cfg.training.total_tokens
+    target_tokens = (
+        min(5000, train_cfg.training.total_tokens)
+        if smoke_mode
+        else train_cfg.training.total_tokens
+    )
     total_steps = math.ceil(target_tokens / tokens_per_step)
 
     peak_lr = min(
@@ -197,6 +201,10 @@ def train_run(
         optimizer.load_state_dict(ckpt_data["optim_state"])
         scaler.load_state_dict(ckpt_data["scaler_state"])
         theta_rng.set_state(ckpt_data["theta_rng_state"])
+        if "torch_rng_state" in ckpt_data:
+            torch.set_rng_state(ckpt_data["torch_rng_state"])
+        if use_cuda and "cuda_rng_state" in ckpt_data and ckpt_data["cuda_rng_state"] is not None:
+            torch.cuda.set_rng_state_all(ckpt_data["cuda_rng_state"])
         start_step = ckpt_data["step"] + 1
         tokens_seen = ckpt_data["tokens_seen"]
         cum_train_time = ckpt_data["cum_train_time"]
@@ -210,6 +218,15 @@ def train_run(
         train_dataset, batch_size=batch_size, seed=run_cfg.seed, device=device
     )
     loader_iter = iter(train_loader)
+    for _ in range(start_step):
+        try:
+            next(loader_iter)
+        except StopIteration:
+            train_loader.close()
+            train_loader = PrefetchDataLoader(
+                train_dataset, batch_size=batch_size, seed=run_cfg.seed + 1, device=device
+            )
+            loader_iter = iter(train_loader)
 
     skipped_scaler_steps = 0
     model.train()
@@ -339,6 +356,8 @@ def train_run(
                 "optim_state": optimizer.state_dict(),
                 "scaler_state": scaler.state_dict(),
                 "theta_rng_state": theta_rng.get_state(),
+                "torch_rng_state": torch.get_rng_state(),
+                "cuda_rng_state": torch.cuda.get_rng_state_all() if use_cuda else None,
                 "tokens_seen": tokens_seen,
                 "cum_train_time": cum_train_time,
             }

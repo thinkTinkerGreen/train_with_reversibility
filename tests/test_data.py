@@ -44,3 +44,15 @@ def test_data_determinism() -> None:
         for (x1, y1, _), (x2, y2, _) in zip(batches1, batches2):
             assert torch.equal(x1, x2)
             assert torch.equal(y1, y2)
+
+
+def test_compute_sha256() -> None:
+    """Validate compute_sha256 matches hashlib output."""
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(b"hello world")
+        f.flush()
+        from revllm.data import compute_sha256
+
+        sha = compute_sha256(f.name)
+        assert len(sha) == 64
+        assert sha == "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
