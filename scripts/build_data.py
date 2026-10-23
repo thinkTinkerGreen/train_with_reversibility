@@ -41,7 +41,7 @@ def train_bpe_tokenizer(
     return tokenizer
 
 
-def main(argv: list[str] | None = None) -> None:
+def main(*args, **kwargs) -> None:
     parser = argparse.ArgumentParser(description="Prepare dataset and tokenizer")
     parser.add_argument("--config", default="configs/data.yaml", help="Path to data config")
     parser.add_argument("--output-dir", default="data", help="Output directory")
@@ -52,18 +52,19 @@ def main(argv: list[str] | None = None) -> None:
         "--smoke", action="store_true", help="Generate tiny synthetic data for testing"
     )
 
+    argv = args[0] if args else kwargs.get("argv", None)
     if argv is None:
         if "ipykernel" in sys.modules or "google.colab" in sys.modules:
             argv = []
-    args, _ = parser.parse_known_args(argv)
+    parsed_args, _ = parser.parse_known_args(argv)
 
-    smoke = args.smoke or (os.environ.get("REVLLM_SMOKE", "0") == "1")
-    output_dir = Path(args.output_dir)
+    smoke = parsed_args.smoke or (os.environ.get("REVLLM_SMOKE", "0") == "1")
+    output_dir = Path(parsed_args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path = Path(args.manifest_path)
+    manifest_path = Path(parsed_args.manifest_path)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(args.config) as f:
+    with open(parsed_args.config) as f:
         cfg = yaml.safe_load(f)
 
     vocab_size = cfg["tokenizer"]["vocab_size"]

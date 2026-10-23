@@ -53,37 +53,39 @@ def generate_greedy(
     return tokenizer.decode(generated_ids)
 
 
-def main(argv: list[str] | None = None) -> None:
+def main(*args, **kwargs) -> None:
     parser = argparse.ArgumentParser(description="Generate text completions")
     parser.add_argument("--ckpt", required=True, help="Path to checkpoint .pt")
     parser.add_argument("--tokenizer", default="data/tokenizer.json", help="Path to tokenizer.json")
     parser.add_argument("--arch", required=True, help="Model architecture")
     parser.add_argument("--output", default="results/generations.json", help="Output JSON path")
 
+    argv = args[0] if args else kwargs.get("argv", None)
     if argv is None:
         if "ipykernel" in sys.modules or "google.colab" in sys.modules:
             argv = []
-    args, _ = parser.parse_known_args(argv)
+    parsed_args, _ = parser.parse_known_args(argv)
 
     device = get_device()
     model_cfg = ModelConfig()
-    model = TransformerLM(model_cfg, arch=args.arch).to(device)
+    model = TransformerLM(model_cfg, arch=parsed_args.arch).to(device)
 
-    ckpt_data = torch.load(args.ckpt, map_location=device)
+    ckpt_data = torch.load(parsed_args.ckpt, map_location=device)
     state_dict = ckpt_data["model_state"] if "model_state" in ckpt_data else ckpt_data
     model.load_state_dict(state_dict)
 
-    tokenizer = Tokenizer.from_file(args.tokenizer)
+    tokenizer = Tokenizer.from_file(parsed_args.tokenizer)
 
     results: list[dict[str, str]] = []
-    print(f"\n--- Generating greedy samples for arch: {args.arch} ---")
+    print(f"\n--- Generating greedy samples for arch: {parsed_args.arch} ---")
     for prompt in FIXED_PROMPTS:
         text = generate_greedy(model, tokenizer, prompt, max_new_tokens=64, device=device)
         print(f"\nPrompt: {prompt}")
         print(f"Output: {text}")
         results.append({"prompt": prompt, "completion": text})
 
-    out_path = Path(args.output)
+    out_path = Path(parsed_args.output)
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         json.dump({"arch": args.arch, "ckpt": args.ckpt, "samples": results}, f, indent=2)

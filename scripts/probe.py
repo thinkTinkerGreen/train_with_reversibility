@@ -240,14 +240,15 @@ print(json.dumps(res))
     return {"f2_batch_sweep": f2_results, "f3_depth_sweep": f3_results}
 
 
-def main(argv: list[str] | None = None) -> None:
+def main(*args, **kwargs) -> None:
     parser = argparse.ArgumentParser(description="Batch size probe and sweeps")
     parser.add_argument("--output", default="results/batch_probe.json", help="Output path")
 
+    argv = args[0] if args else kwargs.get("argv", None)
     if argv is None:
         if "ipykernel" in sys.modules or "google.colab" in sys.modules:
             argv = []
-    args, _ = parser.parse_known_args(argv)
+    parsed_args, _ = parser.parse_known_args(argv)
 
     archs = ["baseline", "midpoint", "midpoint_theta", "leapfrog"]
     all_probes: list[dict] = []
