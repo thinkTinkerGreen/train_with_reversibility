@@ -1,3 +1,5 @@
+**Environment**: `Tesla T4`, PyTorch `2.11.0+cu130`, Python `3.13.15`
+
 ## F1: Official Experimental Runs Summary (A vs B vs C)
 
 | Metric | Run A (`baseline_fixed`) | Run B (`rev_fixed`) | Run C (`rev_max`) |
@@ -33,3 +35,20 @@
 ## F2 & F3: Memory Probing and Diagnostic Depth Sweeps
 
 *Batch probe pending Colab execution (results/batch_probe.json).*
+
+## F5: State Reconstruction Error & Gradient Equivalence
+
+| Architecture | FP32 Max Abs Err | FP16 Max Abs Err | Grad Cosine Sim | Relative L2 Grad Err |
+|---|---|---|---|---|
+| `midpoint` | 4.77e-07 | 6.11e-05 | 1.000000 | 5.32e-08 |
+| `midpoint_theta` | 5.72e-06 | 4.25e-04 | 1.000000 | 2.34e-07 |
+| `leapfrog` | 6.20e-06 | 3.70e-04 | 1.000000 | 1.95e-07 |
+
+## F6: Recompute Overhead Analysis
+
+- **Throughput Slowdown (Run B vs Run A)**: 13.8% recompute overhead (expected 20%–45%).
+- **Memory Reduction (Run B vs Run A)**: 68.5% VRAM saved (6.16 GB -> 1.94 GB).
+
+## F10: Sample Generations (64 New Tokens, Greedy)
+
+*Sample generations pending results/generations.json.*
