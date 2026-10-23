@@ -17,6 +17,9 @@ from revllm.reversible import ReversibleFunction
 class TransformerLM(nn.Module):
     """Decoder-only Transformer supporting baseline (Euler) and reversible residual dynamics."""
 
+    freqs_cis: torch.Tensor
+    blocks: nn.ModuleList
+
     def __init__(self, config: ModelConfig, arch: str = "baseline", h: float | None = None) -> None:
         super().__init__()
         self.config = config
@@ -125,14 +128,15 @@ class TransformerLM(nn.Module):
             p = x0
             q = x0.clone()
             device_type = "cuda" if p.is_cuda else "cpu"
-            for block in self.blocks:
+            for blk in self.blocks:
+                tb: TransformerBlock = blk  # type: ignore[assignment]
                 with torch.amp.autocast(
                     device_type=device_type, enabled=autocast_enabled, dtype=autocast_dtype
                 ):
                     # q(l) = q(l-1) + Attn(LN1(p(l-1)))
-                    q = q + block.attn(block.norm1(p), freqs_cis).to(torch.float32)
+                    q = q + tb.attn(tb.norm1(p), freqs_cis).to(torch.float32)
                     # p(l) = p(l-1) + MLP(LN2(q(l)))
-                    p = p + block.mlp(block.norm2(q)).to(torch.float32)
+                    p = p + tb.mlp(tb.norm2(q)).to(torch.float32)
             final_hidden = 0.5 * (p + q)
         else:
             raise ValueError(f"Unknown architecture: {self.arch}")

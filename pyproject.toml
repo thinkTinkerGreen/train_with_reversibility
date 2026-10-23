@@ -67,7 +67,7 @@ ignore = ["E501", "B905"]
 [tool.mypy]
 python_version = "3.11"
 strict = false
-warn_unused_configs = true
+warn_unused_configs = false
 disallow_untyped_defs = false
 check_untyped_defs = true
 

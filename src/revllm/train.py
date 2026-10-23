@@ -6,8 +6,9 @@ import json
 import math
 import sys
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 import torch
 from torch.optim import AdamW
@@ -20,6 +21,9 @@ from revllm.metrics import EvalMetric, MetricsTracker, StepMetric
 from revllm.model import TransformerLM
 from revllm.reversible import verify_reconstruction
 from revllm.utils import ThetaRNG, calculate_mfu, get_device, set_seed
+
+if TYPE_CHECKING:
+    from revllm.blocks import TransformerBlock
 
 
 def build_optimizer(model: TransformerLM, weight_decay: float = 0.1, lr: float = 1e-3) -> AdamW:
@@ -352,7 +356,7 @@ def train_run(
         dummy_x0 = torch.randn(2, model_cfg.context_len, model_cfg.hidden_size, device=device)
         dummy_freqs = model.freqs_cis[: model_cfg.context_len]
         recon_max_abs, recon_rel = verify_reconstruction(
-            model.blocks,
+            cast(Sequence["TransformerBlock"], list(model.blocks)),
             dummy_x0,
             dummy_freqs,
             arch=run_cfg.arch,
