@@ -1,0 +1,27 @@
+{
+  "winner": "midpoint",
+  "rationale": "Surviving candidate with lowest validation loss (5.1661)",
+  "candidates": [
+    {
+      "arch": "midpoint",
+      "val_loss": 5.166138791662502,
+      "stability": "PASS",
+      "recon_max_abs": 0.0002327561378479004,
+      "tps": 27845.61880425804
+    },
+    {
+      "arch": "midpoint_theta",
+      "val_loss": 6.583802148113101,
+      "stability": "PASS",
+      "recon_max_abs": 0.0,
+      "tps": 27074.371447565012
+    },
+    {
+      "arch": "leapfrog",
+      "val_loss": 5.009466790777492,
+      "stability": "PASS",
+      "recon_max_abs": 0.001586906611919403,
+      "tps": 27030.967958144272
+    }
+  ]
+}
