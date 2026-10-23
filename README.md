@@ -33,7 +33,7 @@ All metrics below are drawn directly from the verified execution files in `resul
 | **Peak Learning Rate** | $7.07 \times 10^{-4}$ | $7.07 \times 10^{-4}$ | $1.00 \times 10^{-3}$ | Square-root batch scaling |
 | **Final Train Loss** | **3.8989** | **3.9215** | 4.3315 | Mean of final 20 steps ($\Delta = 0.022$) |
 | **Final Validation Loss** | **3.9160** | **3.9385** | 4.3398 | Full validation split ($\Delta = 0.022$) |
-| **Validation Perplexity** | **50.20** | **51.34** | 76.69 | $\exp(\text{val\_loss})$ |
+| **Validation Perplexity** | **50.20** | **51.34** | 76.69 | $\exp(L_{\text{val}})$ |
 | **Median Throughput** | 54,670 tokens/s | 47,150 tokens/s | 39,457 tokens/s | **Only 13.8% recomputation overhead** |
 | **End-to-End Throughput** | 39,740 tokens/s | 36,130 tokens/s | 30,765 tokens/s | Includes checkpointing & evaluation |
 | **Peak VRAM Reserved** | **6.16 GB** | **1.94 GB** | **3.15 GB** | **68.5% VRAM Reduction (3.18× smaller)** |
