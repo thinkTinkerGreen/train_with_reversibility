@@ -25,6 +25,18 @@ class ModelConfig:
     dropout: float = 0.0
     residual_dtype: str = "float32"
 
+    def __post_init__(self) -> None:
+        self.layers = int(self.layers)
+        self.hidden_size = int(self.hidden_size)
+        self.num_heads = int(self.num_heads)
+        self.head_dim = int(self.head_dim)
+        self.mlp_hidden_size = int(self.mlp_hidden_size)
+        self.norm_eps = float(self.norm_eps)
+        self.rope_base = float(self.rope_base)
+        self.context_len = int(self.context_len)
+        self.vocab_size = int(self.vocab_size)
+        self.dropout = float(self.dropout)
+
     @classmethod
     def from_yaml(cls, path: str | Path) -> ModelConfig:
         with open(path) as f:
@@ -41,6 +53,12 @@ class OptimizerConfig:
     fused: bool = True
     weight_decay: float = 0.1
 
+    def __post_init__(self) -> None:
+        self.beta1 = float(self.beta1)
+        self.beta2 = float(self.beta2)
+        self.eps = float(self.eps)
+        self.weight_decay = float(self.weight_decay)
+
 
 @dataclass
 class LRScheduleConfig:
@@ -50,6 +68,14 @@ class LRScheduleConfig:
     warmup_ratio: float = 0.03
     min_warmup_steps: int = 5
     min_lr_ratio: float = 0.1
+
+    def __post_init__(self) -> None:
+        self.base_lr = float(self.base_lr)
+        self.max_lr = float(self.max_lr)
+        self.ref_tokens_per_step = int(self.ref_tokens_per_step)
+        self.warmup_ratio = float(self.warmup_ratio)
+        self.min_warmup_steps = int(self.min_warmup_steps)
+        self.min_lr_ratio = float(self.min_lr_ratio)
 
 
 @dataclass
@@ -63,6 +89,16 @@ class TrainingParams:
     eval_points: int = 20
     log_every: int = 10
     checkpoint_points: int = 10
+
+    def __post_init__(self) -> None:
+        self.total_tokens = int(self.total_tokens)
+        self.grad_clip = float(self.grad_clip)
+        self.loss_chunk_size = int(self.loss_chunk_size)
+        self.seed = int(self.seed)
+        self.grad_scaler_init = int(self.grad_scaler_init)
+        self.eval_points = int(self.eval_points)
+        self.log_every = int(self.log_every)
+        self.checkpoint_points = int(self.checkpoint_points)
 
 
 @dataclass
@@ -90,6 +126,12 @@ class RunConfig:
     batch_size: int = 32
     seed: int = 1337
     compile: bool = True
+
+    def __post_init__(self) -> None:
+        self.batch_size = int(self.batch_size)
+        self.seed = int(self.seed)
+        if self.h is not None:
+            self.h = float(self.h)
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> RunConfig:
