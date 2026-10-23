@@ -1,5 +1,7 @@
 **Environment**: `Tesla T4`, PyTorch `2.11.0+cu130`, Python `3.13.15`
 
+**Dataset**: `HuggingFaceFW/fineweb-edu` (50,100,000 training tokens, SHA-256: `a11fe07b1657...`)
+
 ## F1: Official Experimental Runs Summary (A vs B vs C)
 
 | Metric | Run A (`baseline_fixed`) | Run B (`rev_fixed`) | Run C (`rev_max`) |
