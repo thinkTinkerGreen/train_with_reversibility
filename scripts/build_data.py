@@ -52,11 +52,18 @@ def main(*args, **kwargs) -> None:
         "--smoke", action="store_true", help="Generate tiny synthetic data for testing"
     )
 
-    argv = args[0] if args else kwargs.get("argv", None)
-    if argv is None:
-        if "ipykernel" in sys.modules or "google.colab" in sys.modules:
-            argv = []
-    parsed_args, _ = parser.parse_known_args(argv)
+    if args and isinstance(args[0], list):
+        cmd_args = args[0]
+    elif "argv" in kwargs and isinstance(kwargs["argv"], list):
+        cmd_args = kwargs["argv"]
+    else:
+        # Filter out Jupyter/Colab kernel flags (-f /path/to/kernel.json)
+        cmd_args = [
+            a
+            for a in sys.argv[1:]
+            if not a.startswith("-f") and "kernel" not in a and not a.endswith(".json")
+        ]
+    parsed_args, _ = parser.parse_known_args(cmd_args)
 
     smoke = parsed_args.smoke or (os.environ.get("REVLLM_SMOKE", "0") == "1")
     output_dir = Path(parsed_args.output_dir)

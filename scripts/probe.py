@@ -244,11 +244,18 @@ def main(*args, **kwargs) -> None:
     parser = argparse.ArgumentParser(description="Batch size probe and sweeps")
     parser.add_argument("--output", default="results/batch_probe.json", help="Output path")
 
-    argv = args[0] if args else kwargs.get("argv", None)
-    if argv is None:
-        if "ipykernel" in sys.modules or "google.colab" in sys.modules:
-            argv = []
-    parsed_args, _ = parser.parse_known_args(argv)
+    if args and isinstance(args[0], list):
+        cmd_args = args[0]
+    elif "argv" in kwargs and isinstance(kwargs["argv"], list):
+        cmd_args = kwargs["argv"]
+    else:
+        # Filter out Jupyter/Colab kernel flags (-f /path/to/kernel.json)
+        cmd_args = [
+            a
+            for a in sys.argv[1:]
+            if not a.startswith("-f") and "kernel" not in a and not a.endswith(".json")
+        ]
+    parsed_args, _ = parser.parse_known_args(cmd_args)
 
     archs = ["baseline", "midpoint", "midpoint_theta", "leapfrog"]
     all_probes: list[dict] = []
