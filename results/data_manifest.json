@@ -1,0 +1,16 @@
+{
+  "dataset_name": "HuggingFaceFW/fineweb-edu",
+  "dataset_config": "sample-10BT",
+  "dataset_revision": "main",
+  "tokenizer_sha256": "b79f1c6c6ab209501fd9821088cc3edd25327a76247e9b13171a789f87eef42f",
+  "train_bin": {
+    "path": "data/train.bin",
+    "tokens": 50100000,
+    "sha256": "a11fe07b1657e4b9a0c829dedf529004d56fc2b634111e45b242fd95a9e4bc48"
+  },
+  "val_bin": {
+    "path": "data/val.bin",
+    "tokens": 2097152,
+    "sha256": "cd05de66479c0eeed006e3f4ee5691a28cf0f6ec28c345d14d6baa5d67c32e03"
+  }
+}
