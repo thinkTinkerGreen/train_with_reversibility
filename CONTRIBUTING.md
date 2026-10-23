@@ -1,4 +1,4 @@
-# Contributing to rain_with_reversibility
+# Contributing to train_with_reversibility
 
 Thank you for your interest in contributing!
 
@@ -7,9 +7,10 @@ Thank you for your interest in contributing!
 1. Install `uv` (>= 0.4.0) if not already installed.
 2. Clone the repository:
    ```bash
-   git clone https://github.com/thinkTinkerGreen/rain_with_reversibility.git
-   cd rain_with_reversibility
+   git clone https://github.com/thinkTinkerGreen/train_with_reversibility.git
+   cd train_with_reversibility
    ```
+
 3. Sync dependencies:
    ```bash
    uv sync --extra dev

@@ -3,10 +3,11 @@ message: "If you use this software, please cite it as below."
 authors:
   - family-names: "thinktinkergreen"
     given-names: "techamit"
-title: "rain_with_reversibility: Reversible 20M-Parameter LLM on Google Colab"
+title: "train_with_reversibility: Reversible 20M-Parameter LLM on Google Colab"
 version: 1.0.0
 date-released: 2026-10-22
-url: "https://github.com/thinkTinkerGreen/rain_with_reversibility"
+url: "https://github.com/thinkTinkerGreen/train_with_reversibility"
+
 preferred-citation:
   type: article
   authors:
